@@ -1,0 +1,3 @@
+> sqlite3
+sqlite> PRAGMA foreign_keys = ON;
+sqlite> .read schema.sql
