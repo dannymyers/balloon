@@ -19,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 import time
+import datetime
+import socket
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -26,8 +28,94 @@ import Adafruit_SSD1306
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
-
+from uptime import uptime
 import subprocess
+try:
+    import httplib
+except:
+    import http.client as httplib
+
+summaryCount = 0
+
+def getHostName():
+    hostName = socket.gethostbyname(socket.gethostname())
+    return hostName
+
+def hasInternet():
+    return False
+    #conn = httplib.HTTPConnection("www.google.com", timeout=5)
+    #try:
+    #    conn.request("HEAD", "/")
+    #    conn.close()
+    #    return True
+    #except:
+    #    conn.close()
+    #    return False
+
+def Summary(font, x, top, draw):
+
+    global summaryCount
+    summary = ""
+    numItems = 19
+    if summaryCount % numItems == 0:
+        summary += datetime.datetime.now().strftime("%m/%d %H%M")
+        summary += "\n" + getHostName()
+    if summaryCount % numItems == 1:
+        summary += "Net: " + ("Yes" if hasInternet() else "No")
+        summary += "\nUptime: " + str(uptime()) + "s"
+    if summaryCount % numItems == 2:
+        summary += "Signal: 10db"
+        summary += "\nGPS Batt: 69%"
+    if summaryCount % numItems == 3:
+        summary += "GPS Fix: Yes!!!!!!!"
+        summary += "\nNum Err: 1,000"
+    if summaryCount % numItems == 4:
+        summary += "GPS: Yes"
+        summary += "\nCell: Yes"
+    if summaryCount % numItems == 5:
+        summary += "Cam: Yes"
+        summary += "\nAlt: Yes"
+    if summaryCount % numItems == 6:
+        summary += "Gyro: Yes"
+        summary += "\nExtTemp: Yes"
+    if summaryCount % numItems == 7:
+        summary += "Cell Con: Yes"
+        summary += "Init: 12/31/20"
+    if summaryCount % numItems == 8:
+    	summary += "Launch: 12/32/2016"
+        summary += "TFT: 4 hrs"
+    if summaryCount % numItems == 9:
+        summary += "Temp Sea Lvl: 39F"
+        summary += "Pres Sea Lvl: 10,000 Kpa"
+    if summaryCount % numItems == 10:
+        summary += "Lat: 123.29292"
+        summary += "Lng: 123.29292"
+    if summaryCount % numItems == 11:
+        summary += "Gps Alt: 123.29292 Ft"
+        summary += "Sats: 10 /12"
+    if summaryCount % numItems == 12:
+        summary += "Ex Temp: 12.5 F"
+        summary += "Alt Temp: 12.5 F"
+    if summaryCount % numItems == 13:
+        summary += "Gyro Temp: 12.5 F"
+        summary += "Pressure: 10,000 Kpa"
+    if summaryCount % numItems == 14:
+        summary += "Altitude: 10,000 Ft"
+        summary += "Img: 12341241241212.jpg"
+    if summaryCount % numItems == 15:
+        summary += "Gyro [X,Y,Z]: 123.1424,214.3,1241.3"
+        summary += "Accel [X,Y,Z]: 123.1424,214.3,1241.3"
+    if summaryCount % numItems == 16:
+        summary += "Inc Msg: Send Coord"
+    if summaryCount % numItems == 17:
+        summary += "Ext Msg: Gps: 12.412,214.124"
+    if summaryCount % numItems == 18:
+        summary += "Err Mod: GPS"
+        summary += "Err Msg: Unhandled blah blah blah"
+
+    draw.text((x, top), summary, font=font, fill=255)
+    summaryCount = summaryCount + 1
+    #draw.text((x, top + 10), summary2, font=font, fill=255)
 
 # Raspberry Pi pin configuration:
 RST = None     # on the PiOLED this pin isnt used
@@ -108,26 +196,10 @@ while True:
     # Draw a black filled box to clear the image.
     draw.rectangle((0,0,width,height), outline=0, fill=0)
 
-    # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
-    #cmd = "hostname -I | cut -d\' \' -f1"
-    #IP = subprocess.check_output(cmd, shell = True )
-    #cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
-    #CPU = subprocess.check_output(cmd, shell = True )
-    #cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%sMB %.2f%%\", $3,$2,$3*100/$2 }'"
-    #MemUsage = subprocess.check_output(cmd, shell = True )
-    #cmd = "df -h | awk '$NF==\"/\"{printf \"Disk: %d/%dGB %s\", $3,$2,$5}'"
-    #Disk = subprocess.check_output(cmd, shell = True )
-
-    # Write two lines of text.
-
-    draw.text((x, top),       "Pi In The Sky",  font=font, fill=255)
-    draw.text((x, top+18),       str(i),  font=font, fill=255)
-    #draw.text((x, top+8),     str(CPU), font=font, fill=255)
-    #draw.text((x, top+16),    str(MemUsage),  font=font, fill=255)
-    #draw.text((x, top+25),    str(Disk),  font=font, fill=255)
+    Summary(font, x, top, draw)
 
     # Display image.
     disp.image(image)
     disp.display()
-    time.sleep(.1)
+    time.sleep(.5)
     i = i + 1
