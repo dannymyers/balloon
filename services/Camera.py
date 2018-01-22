@@ -23,7 +23,7 @@ def takePicture():
 	session.add(a1)
 	SaveSession(session)
 
-	print('Added ' + fileName + " " + str(a1.CameraReadingKey))
+	print('Added Camera ' + fileName + " " + str(a1.CameraReadingKey))
 
 while true:
 	takePicture()

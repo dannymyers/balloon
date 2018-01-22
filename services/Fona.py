@@ -42,7 +42,7 @@ def addGpsSentence():
 	a1 = GpsReading(launchKey, gpsSentence)
 	session.add(a1)
 	SaveSession(session)
-	print('Added ' + str(a1.GpsReadingKey))	
+	print('Added GPS Reading ' + str(a1.GpsReadingKey))	
 
 def getCellData():
 	#AT+COPS? Check that you're connected to the network, in this case T-Mobile
@@ -79,7 +79,7 @@ def addCellReading():
 	a1 = CellNetworkReading(launchKey, connected, sigStrength, batt, volt)
 	session.add(a1)
 	SaveSession(session)
-	print('Added ' + str(a1.CellNetworkReadingKey))
+	print('Added Cell Reading ' + str(a1.CellNetworkReadingKey))
 
 print("Has Power: " + str(enableGps()))
 while true:

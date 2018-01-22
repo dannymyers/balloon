@@ -35,7 +35,7 @@ def addGyroReading():
 	a1 = GyroReading(launchKey, temp, gx, gy, gz, ax, ay, az, mx, my, mz)
 	session.add(a1)
 	SaveSession(session)
-	print('Added ' + str(a1.GyroReadingKey))
+	print('Added Gyro Reading ' + str(a1.GyroReadingKey))
 
 
 while true:

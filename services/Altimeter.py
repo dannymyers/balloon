@@ -147,9 +147,9 @@ def getReading():
     altitudeInFeet = pres2alt(pressure * 100) * 3.28084
 
     # Output data to screen
-    print "Temperature in Fahrenheit : %.2f F" %fTemp
-    print "Pressure : %.2f hPa " %pressure
-    print "Altitude : %.2f feet " %altitudeInFeet
+    #print "Temperature in Fahrenheit : %.2f F" %fTemp
+    #print "Pressure : %.2f hPa " %pressure
+    #print "Altitude : %.2f feet " %altitudeInFeet
     return fTemp, pressure, altitudeInFeet
 
 def addReading():
@@ -166,7 +166,7 @@ def addReading():
     a1 = AltitudeReading(launchKey, temp, pres, alt)
     session.add(a1)
     SaveSession(session)
-    print('Added ' + str(a1.AltitudeReadingKey))
+    print('Added Altitude Reading ' + str(a1.AltitudeReadingKey))
 
 while true:
 	addReading()
