@@ -1,0 +1,31 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "dev": "nodemon main.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/three": "^0.84.33",
+    "express": "^4.16.2",
+    "moment": "^2.19.2",
+    "nodemon": "^1.12.1"
+  },
+  "dependencies": {
+    "@types/express": "^4.0.37",
+    "bmp280-sensor": "^0.1.1",
+    "i2c-mpu6050": "^2.2.1",
+    "node-bmp280": "^0.1.2",
+    "pi-camera": "^1.0.1",
+    "raspi-serial": "^4.0.0",
+    "round-to": "^2.0.0",
+    "serve-index": "^1.9.1",
+    "socket.io": "^2.0.4",
+    "sqlite3": "^3.1.13",
+    "three": "^0.88.0"
+  }
+}

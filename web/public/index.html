@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Balloon Server</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">Pi In The Sky
+                    <span class="coligo"> | Balloon Server</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="app">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="well">
+                        <div style="font-size: 15pt">External Temperature</div>
+                        <div style="font-size: 30pt">{{sensor.currentExternalTemperature}} F</div>
+                        <div>
+                            <div>High: <span style="font-weight:bold" class="dash-red">{{sensor.maxExternalTemperature}} F</span></div>
+                            <div>Low: <span  style="font-weight:bold" class="dash-blue">{{sensor.minExternalTemperature}} F</span></div>
+                        </div>
+                        <div class="text-muted">{{sensor.time}}</div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                        <div class="well">
+                            <div style="font-size: 15pt">Internal Temperature</div>
+                            <div style="font-size: 30pt">{{sensor.currentInternalTemperature}} F</div>
+                            <div>
+                                <div>High: <span style="font-weight:bold" class="dash-red">{{sensor.maxInternalTemperature}} F</span></div>
+                                <div>Low: <span  style="font-weight:bold" class="dash-blue">{{sensor.minInternalTemperature}} F</span></div>
+                            </div>
+                            <div class="text-muted">{{sensor.time}}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                            <div class="well">
+                                <div style="font-size: 15pt">Pressure</div>
+                                <div style="font-size: 30pt">{{sensor.currentPressure}} mb/hPa</div>
+                                <div>
+                                    <div>High: <span style="font-weight:bold" class="dash-red">{{sensor.maxPressure}} mb/hPa</span></div>
+                                    <div>Low: <span  style="font-weight:bold" class="dash-blue">{{sensor.minPressure}} mb/hPa</span></div>
+                                </div>
+                                <div class="text-muted">{{sensor.time}}</div>
+                            </div>
+                        </div>
+    
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="well">
+                        <div style="font-size: 15pt">GPS Data</div>
+                        <div style="font-size: 10pt">Fix Status: {{sensor.gpsMessage.fixStatus == "1" ? "Locked" : "Not Locked"}}</div>
+                        <div style="font-size: 10pt">Latitude: {{sensor.gpsMessage.latitude}}</div>
+                        <div style="font-size: 10pt">Longitude: {{sensor.gpsMessage.longitude}}</div>
+                        <div style="font-size: 10pt">Altitude: {{sensor.gpsMessage.mslAltitude}}</div>
+                        <div style="font-size: 10pt">Satellites Used: {{sensor.gpsMessage.gnssSatellitesUsed}} of {{sensor.gpsMessage.gnssSatellitesInView}}</div>
+                        <div class="text-muted">{{sensor.gpsMessage.dateAndTimeUtc}}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                        <div class="col-lg-4">
+                            <div class="well">
+                                <div style="font-size: 15pt">Gyro</div>
+                                <div id="gyro"></div>
+                                <div style="font-size: 8pt">X: {{sensor.gyroData.gyro.x}}</div>
+                                <div style="font-size: 8pt">Y: {{sensor.gyroData.gyro.y}}</div>
+                                <div style="font-size: 8pt">Z: {{sensor.gyroData.gyro.z}}</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="well">
+                                <div style="font-size: 15pt">Rotation</div>
+                                <div id="rotation"></div>
+                                <div style="font-size: 8pt">X: {{sensor.gyroData.rotation.x}}</div>
+                                <div style="font-size: 8pt">Y: {{sensor.gyroData.rotation.y}}</div>
+                                <div style="font-size: 8pt">Z: {{sensor.gyroData.rotation.z}}</div>
+                            </div>
+                        </div>
+        
+                    <div class="col-lg-4">
+                            <div class="well">
+                                <div style="font-size: 15pt">Accel</div>
+                                <div id="accel"></div>
+                                <div style="font-size: 8pt">X: {{sensor.gyroData.accel.x}}</div>
+                                <div style="font-size: 8pt">Y: {{sensor.gyroData.accel.y}}</div>
+                                <div style="font-size: 8pt">Z: {{sensor.gyroData.accel.z}}</div>
+                            </div>
+                        </div>
+    
+
+            </div>
+                
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/1.0.17/vue.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="three.min.js"></script>
+    <script src="dashboard.js"></script>
+
+</body>
+
+</html>

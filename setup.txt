@@ -15,3 +15,23 @@ sudo pip install pyserial
 
 #GPS
 sudo apt-get install screen
+
+#Camera
+sudo apt-get install python-picamera
+
+npm install sqlite3 --build-from-source
+
+
+ATI - Get the module name and revision
+AT+CMEE=2 - Turn on verbose errors (handy for when you are trying out commands!)
+AT+CCID - get the SIM card number - this tests that the SIM card is found OK and you can verify the number is written on the card
+
+AT+COPS? Check that you're connected to the network, in this case T-Mobile
+AT+CSQ - Check the 'signal strength' - the first # is dB strength, it should be higher than around 5. Higher is better. Of course it depends on your antenna and location!
+AT+CBC - will return the lipo battery state. The second number is the % full (in this case its 92%) and the third number is the actual voltage in mV (in this case, 3.877 V)
+
+AT+CMGF=1 - this will set it to TEXT mode not PDU (data) mode. You must do this because otherwise you cannot just type out the message.
+AT+CMGS="nnnnnn" - send a text message! You will get a '>' prompt for typing. Type out your message and when you are done send a [Control-Z] on an empty line to send
+
+
+https://learn.adafruit.com/adafruit-fona-808-cellular-plus-gps-breakout?view=all

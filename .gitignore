@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+#NODE Stuff
+node_modules
+
+# all javascript
+/web/*.js
+/web/services/*.js
+/web/utils/*.js

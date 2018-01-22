@@ -52,9 +52,32 @@ class GpsReading(Base):
 	Hpa = Column(String(255), nullable=True)
 	Vpa = Column(String(255), nullable=True)
 
-	def __init__(self, LaunchKey=None, Sentence=None):
-		self.ReadingTime = datetime.datetime.now()
-		self.LaunchKey = LaunchKey
+	def __init__(self, LaunchKey=None, GpsSentence=None):
+		if GpsSentence is not None:
+			data = GpsSentence.split(",")
+			self.ReadingTime = datetime.datetime.now()
+			self.LaunchKey = LaunchKey
+			self.GnssRunStatus = data[0]
+			self.FixStatus = data[1]
+			self.DateAndTimeUtc = data[2]
+			self.Latitude = data[3]#Convert to DDMM.MMMM
+			self.Longitude = data[4]#Convert to DDDMM.MMMM
+			self.MslAltitude = data[5]#Convert To Feet
+			self.SpeedOverGround = data[6]#Convert to MPH
+			self.CourseOverGround = data[7]#Convert to MPH
+			self.FixMode = data[8]
+			self.Reserved1 = data[9]
+			self.Hdop = data[10]
+			self.Pdop = data[11]
+			self.Vdop = data[12]
+			self.Reserved2 = data[13]
+			self.GnssSatellitesInView = data[14]
+			self.GnssSatellitesUsed = data[15]
+			self.GlonassSatellitesUsed = data[16]
+			self.Reserved3 = data[17]
+			self.CNoMax = data[18]
+			self.Hpa = data[19]
+			self.Vpa = data[20]
 
 	def __repr__(self):
 		return "GpsReading(%r, %r, %r)" % (self.GpsReadingKey, self.ReadingTime, self.Latitude, self.Longitude)

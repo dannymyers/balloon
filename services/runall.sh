@@ -1,1 +1,1 @@
-python altitude.py & python camera.py
+python Altimeter.py & python Camera.py & python Fona.py & python Gyro.py & python Lcd.py
