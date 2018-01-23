@@ -80,7 +80,7 @@ class GpsReading(Base):
 			self.Vpa = data[20]
 
 	def __repr__(self):
-		return "GpsReading(%r, %r, %r)" % (self.GpsReadingKey, self.ReadingTime, self.Latitude, self.Longitude)
+		return "GpsReading(%r, %r, %r, %r)" % (self.GpsReadingKey, self.ReadingTime, self.Latitude, self.Longitude)
 
 class CellNetworkReading(Base):
 	__tablename__ = 'CellNetworkReading'

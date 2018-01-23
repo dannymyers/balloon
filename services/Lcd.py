@@ -24,6 +24,7 @@ import socket
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
+from dal import *
 
 from PIL import Image
 from PIL import ImageDraw
@@ -37,81 +38,112 @@ except:
 
 summaryCount = 0
 
+def getLatestGps():
+    session = GetSession()
+    gpsReading = session.query(GpsReading).order_by(GpsReading.GpsReadingKey.desc()).first()
+    return gpsReading
+
+def getLatestCell():
+    session = GetSession()
+    cellReading = session.query(CellNetworkReading).order_by(CellNetworkReading.CellNetworkReadingKey.desc()).first()
+    return cellReading
+
 def getHostName():
     hostName = socket.gethostbyname(socket.gethostname())
     return hostName
 
 def hasInternet():
     return False
-    #conn = httplib.HTTPConnection("www.google.com", timeout=5)
-    #try:
-    #    conn.request("HEAD", "/")
-    #    conn.close()
-    #    return True
-    #except:
-    #    conn.close()
-    #    return False
+
+def hasInternet2():
+    conn = httplib.HTTPConnection("www.google.com", timeout=5)
+    try:
+        conn.request("HEAD", "/")
+        conn.close()
+        return True
+    except:
+        conn.close()
+        return False
 
 def Summary(font, x, top, draw):
 
     global summaryCount
     summary = ""
-    numItems = 19
-    if summaryCount % numItems == 0:
+    numItems = 7
+    if summaryCount % numItems == 6:
         summary += datetime.datetime.now().strftime("%m/%d %H%M")
         summary += "\n" + getHostName()
-    if summaryCount % numItems == 1:
+    if summaryCount % numItems == 5:
         summary += "Net: " + ("Yes" if hasInternet() else "No")
         summary += "\nUptime: " + str(uptime()) + "s"
-    if summaryCount % numItems == 2:
-        summary += "Signal: 10db"
-        summary += "\nGPS Batt: 69%"
-    if summaryCount % numItems == 3:
-        summary += "GPS Fix: Yes!!!!!!!"
-        summary += "\nNum Err: 1,000"
     if summaryCount % numItems == 4:
-        summary += "GPS: Yes"
-        summary += "\nCell: Yes"
-    if summaryCount % numItems == 5:
-        summary += "Cam: Yes"
-        summary += "\nAlt: Yes"
-    if summaryCount % numItems == 6:
-        summary += "Gyro: Yes"
-        summary += "\nExtTemp: Yes"
-    if summaryCount % numItems == 7:
-        summary += "Cell Con: Yes"
-        summary += "Init: 12/31/20"
-    if summaryCount % numItems == 8:
-    	summary += "Launch: 12/32/2016"
-        summary += "TFT: 4 hrs"
-    if summaryCount % numItems == 9:
-        summary += "Temp Sea Lvl: 39F"
-        summary += "Pres Sea Lvl: 10,000 Kpa"
-    if summaryCount % numItems == 10:
-        summary += "Lat: 123.29292"
-        summary += "Lng: 123.29292"
-    if summaryCount % numItems == 11:
-        summary += "Gps Alt: 123.29292 Ft"
-        summary += "Sats: 10 /12"
-    if summaryCount % numItems == 12:
-        summary += "Ex Temp: 12.5 F"
-        summary += "Alt Temp: 12.5 F"
-    if summaryCount % numItems == 13:
-        summary += "Gyro Temp: 12.5 F"
-        summary += "Pressure: 10,000 Kpa"
-    if summaryCount % numItems == 14:
-        summary += "Altitude: 10,000 Ft"
-        summary += "Img: 12341241241212.jpg"
-    if summaryCount % numItems == 15:
-        summary += "Gyro [X,Y,Z]: 123.1424,214.3,1241.3"
-        summary += "Accel [X,Y,Z]: 123.1424,214.3,1241.3"
-    if summaryCount % numItems == 16:
-        summary += "Inc Msg: Send Coord"
-    if summaryCount % numItems == 17:
-        summary += "Ext Msg: Gps: 12.412,214.124"
-    if summaryCount % numItems == 18:
-        summary += "Err Mod: GPS"
-        summary += "Err Msg: Unhandled blah blah blah"
+        gps = getLatestGps() 
+        summary += "Gps Fix: " + ("Yes" if gps.FixStatus == "1" else "No")
+        summary += "\nRdng: " + gps.ReadingTime.strftime("%H%M")
+    if summaryCount % numItems == 3:
+        gps = getLatestGps() 
+        summary += "Lat: " + gps.Latitude
+        summary += "\nLng: " + gps.Longitude
+    if summaryCount % numItems == 0:
+        gps = getLatestGps() 
+        summary += "Alt: " + gps.MslAltitude + "m"
+        summary += "\nSat: " + gps.GnssSatellitesUsed + "/" + gps.GnssSatellitesInView
+    if summaryCount % numItems == 1:
+        cell = getLatestCell() 
+        summary += "Cell: " + ("Yes" if cell.IsConnected else "No") + " " + str(cell.SignalStrengthDecibals) + "db"
+        summary += "\nRdng: " + cell.ReadingTime.strftime("%H%M")
+    if summaryCount % numItems == 2:
+        cell = getLatestCell() 
+        summary += "Battery: " + str(cell.BatteryPercentFull) + "%"
+        summary += "Battery: " + str(cell.VoltageMillivolts) + "mv"
+#    if summaryCount % numItems == 2:
+#        summary += "Signal: 10db"
+#        summary += "\nGPS Batt: 69%"
+#    if summaryCount % numItems == 3:
+#        summary += "GPS Fix: Yes!!!!!!!"
+#    if summaryCount % numItems == 4:
+#        summary += "GPS: Yes"
+#        summary += "\nCell: Yes"
+#    if summaryCount % numItems == 5:
+#        summary += "Cam: Yes"
+#        summary += "\nAlt: Yes"
+#    if summaryCount % numItems == 6:
+#        summary += "Gyro: Yes"
+#        summary += "\nExtTemp: Yes"
+#    if summaryCount % numItems == 7:
+#        summary += "Cell Con: Yes"
+#        summary += "Init: 12/31/20"
+#    if summaryCount % numItems == 8:
+#    	summary += "Launch: 12/32/2016"
+#        summary += "TFT: 4 hrs"
+#    if summaryCount % numItems == 9:
+#        summary += "Temp Sea Lvl: 39F"
+#        summary += "Pres Sea Lvl: 10,000 Kpa"
+#    if summaryCount % numItems == 10:
+#        summary += "Lat: 123.29292"
+#        summary += "Lng: 123.29292"
+#    if summaryCount % numItems == 11:
+#        summary += "Gps Alt: 123.29292 Ft"
+ #       summary += "Sats: 10 /12"
+ #   if summaryCount % numItems == 12:
+ #       summary += "Ex Temp: 12.5 F"
+ #       summary += "Alt Temp: 12.5 F"
+ #   if summaryCount % numItems == 13:
+ #       summary += "Gyro Temp: 12.5 F"
+ #       summary += "Pressure: 10,000 Kpa"
+ #   if summaryCount % numItems == 14:
+ #       summary += "Altitude: 10,000 Ft"
+ #       summary += "Img: 12341241241212.jpg"
+ #   if summaryCount % numItems == 15:
+ #       summary += "Gyro [X,Y,Z]: 123.1424,214.3,1241.3"
+ #       summary += "Accel [X,Y,Z]: 123.1424,214.3,1241.3"
+ #   if summaryCount % numItems == 16:
+ #       summary += "Inc Msg: Send Coord"
+ #   if summaryCount % numItems == 17:
+ #       summary += "Ext Msg: Gps: 12.412,214.124"
+ #   if summaryCount % numItems == 18:
+ #       summary += "Err Mod: GPS"
+ #       summary += "Err Msg: Unhandled blah blah blah"
 
     draw.text((x, top), summary, font=font, fill=255)
     summaryCount = summaryCount + 1

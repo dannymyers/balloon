@@ -1,22 +1,24 @@
 from os import system
 import serial
 from dal import *
-
 from time import sleep
+from systemd import journal
+
+journal.send("Fona Start")
 
 ser=serial.Serial('/dev/serial0', 115200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, timeout=1)
 
 def waitForOkOrError(message):
-	#print "Issuing: " + message
+	journal.send("Issuing: " + message)
 	ser.write(message + "\r")
 	count = 0
 	data = ""
 	response = ser.readline().rstrip()
 	while response != "OK":
 		sleep(.1)
-		#print response
+		journal.send("Response: " + response)
 		if response == "ERROR":
-			print "ERROR"
+			journal.send("ERROR RETURNED")
 			return None
 		if response != "" and "AT+" not in response:#Empty Lines OR Echos Ignored
 			data += response
@@ -37,12 +39,15 @@ def getGpsSentence():
 
 def addGpsSentence():
 	gpsSentence = getGpsSentence()
+
+	journal.send("GPS Sentence: " + gpsSentence)
 	session = GetSession()
 	launchKey = GetCurrentLaunchKey(session)
+	journal.send("Launch Key: " + str(launchKey))
 	a1 = GpsReading(launchKey, gpsSentence)
 	session.add(a1)
 	SaveSession(session)
-	print('Added GPS Reading ' + str(a1.GpsReadingKey))	
+	journal.send("Added GPS Reading: " + str(a1.GpsReadingKey))
 
 def getCellData():
 	#AT+COPS? Check that you're connected to the network, in this case T-Mobile
@@ -74,12 +79,17 @@ def getCellData():
 def addCellReading():
 
 	(connected, sigStrength, batt, volt) = getCellData()
+	journal.send("Connected: " + str(sigStrength))
+	journal.send("Signal Strength: " + str(connected))
+	journal.send("Battery: " + str(batt))
+	journal.send("Voltage: " + str(volt))
 	session = GetSession()
 	launchKey = GetCurrentLaunchKey(session)
+	journal.send("Launch Key: " + str(launchKey))
 	a1 = CellNetworkReading(launchKey, connected, sigStrength, batt, volt)
 	session.add(a1)
 	SaveSession(session)
-	print('Added Cell Reading ' + str(a1.CellNetworkReadingKey))
+	journal.send("Added Cell Reading: " + str(a1.CellNetworkReadingKey))
 
 print("Has Power: " + str(enableGps()))
 while true:
