@@ -8,6 +8,9 @@
 import smbus
 import time
 from dal import *
+from systemd import journal
+
+journal.send("Altimeter Start")
 
 def pres2alt(pressure):
     '''
@@ -148,8 +151,6 @@ def getReading():
 
     # Output data to screen
     #print "Temperature in Fahrenheit : %.2f F" %fTemp
-    #print "Pressure : %.2f hPa " %pressure
-    #print "Altitude : %.2f feet " %altitudeInFeet
     return fTemp, pressure, altitudeInFeet
 
 def addReading():
@@ -159,14 +160,18 @@ def addReading():
 	#alt = random.randrange(600, 100000) + random.random()
 
     temp, pres, alt = getReading()
+    journal.send("Temperature in Fahrenheit: " + str(temp) +  " F")
+    journal.send("Pressure: " + str(pres) + " hPa")
+    journal.send("Altitude: " + str(alt) +  " Ft")
 
     session = GetSession()
     launchKey = GetCurrentLaunchKey(session)
+    journal.send("Launch Key: " + str(launchKey))
 
     a1 = AltitudeReading(launchKey, temp, pres, alt)
     session.add(a1)
     SaveSession(session)
-    print('Added Altitude Reading ' + str(a1.AltitudeReadingKey))
+    journal.send("Added Altitude Reading: " + str(a1.AltitudeReadingKey))
 
 while true:
 	addReading()

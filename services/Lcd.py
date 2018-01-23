@@ -201,5 +201,5 @@ while True:
     # Display image.
     disp.image(image)
     disp.display()
-    time.sleep(10)
+    time.sleep(5)
     i = i + 1

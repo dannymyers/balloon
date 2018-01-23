@@ -1,0 +1,11 @@
+[Unit]
+Description=Gyro
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /share/balloon/services/Gyro.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

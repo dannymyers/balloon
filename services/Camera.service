@@ -1,0 +1,11 @@
+[Unit]
+Description=Camera
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python /share/balloon/services/Camera.py
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
