@@ -3,7 +3,8 @@ var SX127x = require('sx127x');
 var sx127x = new SX127x({
   frequency: 433E6,
   resetPin:	6,
-  dio0Pin:	5
+  dio0Pin:	5,
+  //spreadingFactor: 12
 });
 
 var count = 0;
@@ -16,13 +17,15 @@ sx127x.open(function(err) {
     throw err;
   }
 
-  // send a message every second
-  setInterval(function() {
-    console.log('write: hello ' + count);
-    sx127x.write(new Buffer('hello ' + count++), function(err) {
-      console.log('\t', err ? err : 'success');
-    });
-  }, 1000);
+  // add a event listener for data events
+  sx127x.on('data', function(data, rssi) {
+    console.log('data:', '\'' + data.toString() + '\'', rssi);
+  });
+
+  // enable receive mode
+  sx127x.receive(function(err) {
+    console.log('receive', err ? err : 'success');
+  });
 });
 
 process.on('SIGINT', function() {

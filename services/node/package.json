@@ -9,6 +9,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.2",
+    "i2c-bus": "^1.2.5",
+    "oled-font-5x7": "^1.0.0",
+    "oled-i2c-bus": "^1.0.10",
+    "serve-index": "^1.9.1",
+    "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4",
+    "sqlite3": "^3.1.13",
     "sx127x": "0.0.0"
   }
 }
