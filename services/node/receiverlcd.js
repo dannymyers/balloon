@@ -5,7 +5,7 @@ var sx127x = new SX127x({
   resetPin:	6,
   dio0Pin:	5,
   spreadingFactor: 12,
-  signalBandwidth: 15.6E3//10.4E3
+  //signalBandwidth: 15.6E3//10.4E3
 });
 
 var count = 0;
@@ -34,7 +34,7 @@ sx127x.open(function(err) {
   // add a event listener for data events
   sx127x.on('data', function(data, rssi, snr) {
 
-    var count = data.readInt8(0);
+    var count = data.readUInt16BE(0);
 
     console.log('data:', '\'' + count + '\'', rssi, snr);
       oled.clearDisplay();

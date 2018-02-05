@@ -1,25 +1,36 @@
-var socket = io();
+function httpGetAsync(theUrl, callback)
+{
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function() { 
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(xmlHttp.responseText);
+    }
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+    xmlHttp.send(null);
+}
+
+var myData = {    
+  Readings: {
+    AltitudeReading: { ReadingTime: '1/1/2010', TemperatureInFahrenheit: 10}
+  }
+}
 
 var vm = new Vue({
   el: '#app',
-  data: {
-    sensor: {
-      currentExternalTemperature: 0,
-      currentInternalTemperature: 0,
-      currentPressure: 0,
-      maxExternalTemperature: 0,
-      maxInternalTemperature: 0,
-      maxPressure: 0,
-      minExternalTemperature: 0,
-      minInternalTemperature: 0,
-      minPressure: 0,
-      time: ''
-    }
-  },
+  data: myData,
   created: function() {
-    socket.on('update-telemetry', function(sensorData) {
-      console.log(sensorData);
-      this.sensor = sensorData;
-    }.bind(this));
+
+    getData = ()=> {
+      httpGetAsync("/data", (result)=>{
+        myData.Readings = JSON.parse(result);
+        console.log(myData.Readings);
+      });
+    }
+    window.setInterval(()=>
+    {
+      getData();
+    }, 10000);
+    getData();
+
   }
 });
