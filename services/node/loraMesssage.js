@@ -89,6 +89,7 @@ class LoraMessage {
   }
 }
 
+/*
 var x = new LoraMessage();
 x.count = 1;
 x.isAltitudeWorking = true;
@@ -128,3 +129,6 @@ if(xStr != yStr)
 }
 else
   console.log('good');
+*/
+
+module.exports = LoraMessage;

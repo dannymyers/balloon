@@ -1,4 +1,7 @@
+var LoraMessage = require("./loraMesssage");
+var Dal = require("./dal");
 var sqlite3=require('sqlite3-promise')
+var moment=require('moment')
 var db = new sqlite3.Database('/share/balloon.db');
 var SX127x = require('sx127x');
 
@@ -11,6 +14,11 @@ var sx127x = new SX127x({
 
 var count = 0;
 
+function isWorking(time, numberOfSecondsUntilReportProblem) {
+  var x = moment().diff(moment(time), "seconds") < numberOfSecondsUntilReportProblem;
+  return x;
+}
+
 // open the device
 sx127x.open(function(err) {
   console.log('open', err ? err : 'success');
@@ -20,33 +28,82 @@ sx127x.open(function(err) {
   }
 
   // send a message every second
-  setInterval(function() {
-    console.log('write: ' + count);
-    const buf = Buffer.allocUnsafe(25);
+  setInterval(async function() {
 
-    var latestGpsReading = "SELECT Latitude, Longitude, ReadingTime, FixStatus, MslAltitude, SpeedOverGround FROM GpsReading ORDER BY 1 DESC LIMIT 1";
-    var maxAltitude = "SELECT MAX(CAST(MslAltitude AS REAL)) FROM GpsReading WHERE MslAltitude <> ''";
-    var latestAltitudeReading = "select ReadingTime, TemperatureInFahrenheit, PressureInPascals, AltitudeInFeet FROM AltitudeReading ORDER BY 1 DESC LIMIT 1";
-    var maxAltitude = "SELECT MAX(CAST(MslAltitude AS REAL)) FROM GpsReading WHERE MslAltitude <> ''";
-    buf.writeUInt16BE(count, 0);//Count 16 Unsigned (0->65,535)
-    buf.writeUInt8(count, 0);//BITS -> Connected|GpsFixed|AltitudeWorking|CameraWorking|CellWorking|ExternalTempWorking|GpsWorking|GyroWorking
-    buf.writeFloatBE(count, 0);//Lat 32 (32.980277)
-    buf.writeFloatBE(count, 0);//Lng 32 (-117.058365)
-    buf.writeUInt16BE(count, 0);//MSL Altitude Meters 16 Unsigned (0->65,535)
-    buf.writeUInt16BE(count, 0);//MSL Max Altitude Meters 16 Unsigned (0->65,535)
-    buf.writeUInt16BE(count, 0);//Altimeter Altitude Meters 16 Unsigned (0->65,535)
-    buf.writeUInt16BE(count, 0);//Altimeter Max Altitude Meters 16 Unsigned (0->65,535)
-    buf.writeInt8(count, 0);//Internal Temp In Fahrenheit 8 (-128=>127)
-    buf.writeInt8(count, 0);//External Temp In Fahrenheit 8 (-128=>127)
-    buf.writeInt8(count, 0);//External Min In Fahrenheit Temp 8 (-128=>127)
-    buf.writeInt8(count, 0);//Strengh DB 8 (-128=>127)
-    buf.writeUInt8(count, 0);//Battery % Full 8 (0=>255)
-    buf.writeUInt8(count, 0);//Speed Over Ground 8 Kilometers Per Hour (0->255)
-    console.log(buf);
-    count++;
-    sx127x.write(buf, function(err) {
-      console.log('\t', err ? err : 'success');
-    });
+    var dal = new Dal(db);
+    var launch = await dal.getLatestLaunchAsync();
+    if(launch == null)
+      return;
+    var altitudeReading = await dal.getLatestAltitudeReadingAsync(launch.LaunchKey);
+    var cameraReading = await dal.getLatestCameraReadingAsync(launch.LaunchKey);
+    var cellNetworkReading = await dal.getLatestCellNetworkReadingAsync(launch.LaunchKey);
+    var externalTemperatureReading = await dal.getLatestExternalTemperatureReadingAsync(launch.LaunchKey);
+    var gpsReading = await dal.getLatestGpsReadingAsync(launch.LaunchKey);
+    var gyroReading = await dal.getLatestGyroReadingAsync(launch.LaunchKey);
+    var maxGpsAltitudeReading = await dal.getMaxAltitudeFromGpsReadingAsync(launch.LaunchKey);
+    var maxAltitudeReading = await dal.getMaxAltitudeFromAltitudeReadingAsync(launch.LaunchKey);
+    var minExternalTemperatureReading = await dal.getMinExternalTemperatureReadingAsync(launch.LaunchKey);
+    var lm = new LoraMessage();
+    lm.count = count++;
+
+    if(altitudeReading != null) {
+      lm.isAltitudeWorking = isWorking(altitudeReading.ReadingTime, 60);
+      lm.currentAltitudeMeters = altitudeReading.AltitudeInFeet * 0.3048;
+      lm.internalTemperatureInFahrenheit = altitudeReading.TemperatureInFahrenheit;
+    }
+
+    if(cameraReading != null) {
+      lm.isCameraWorking = isWorking(cameraReading.ReadingTime, 120);//Give it 2 minutes to be safe
+    }
+
+    if(cellNetworkReading != null) {
+      lm.isCellWorking = isWorking(cellNetworkReading.ReadingTime, 60);
+      lm.isConnected = cellNetworkReading.IsConnected != 0;
+      lm.strengthInDecibel = cellNetworkReading.SignalStrengthDecibals;
+      lm.batteryPercentFull = cellNetworkReading.BatteryPercentFull;
+    }
+
+    if(externalTemperatureReading != null) {
+      lm.isExternalTempWorking = isWorking(externalTemperatureReading.ReadingTime, 60)
+      lm.externalTemperatureInFahrenheit = externalTemperatureReading.TemperatureInFahrenheit;
+    }
+
+    if(cameraReading != null) {
+      lm.isGpsFixed = gpsReading.FixStatus != "0";
+      lm.isGpsWorking = isWorking(gpsReading.ReadingTime, 60);
+      lm.latitude = gpsReading.Latitude;
+      lm.longitude = gpsReading.Longitude;
+      lm.speedOverGroundInKilometersPerHour = gpsReading.SpeedOverGround;
+      lm.mslCurrentAltitudeMeters = gpsReading.MslAltitude;
+    }
+
+    if(gyroReading != null) {
+      lm.isGyroWorking = isWorking(gyroReading.ReadingTime, 60);
+    }
+
+    if(maxGpsAltitudeReading != null){
+      lm.mslMaxAltitudeMeters = maxGpsAltitudeReading.MslAltitude;
+    }
+
+    if(maxAltitudeReading != null){
+      lm.maxAltitudeMeters = maxAltitudeReading.AltitudeInFeet * 0.3048;
+    }
+
+    if(minExternalTemperatureReading != null)
+    {
+      lm.minExternalTemperatureInFahrenheit = minExternalTemperatureReading.TemperatureInFahrenheit;
+    }
+
+    var buf = lm.toBuffer();
+    var z = new LoraMessage();
+    z.fromBuffer(buf);
+    //console.log(buf);
+    console.log(lm);
+    console.log(z);
+    //console.log('write: ' + buf.toString());
+    //sx127x.write(buf, function(err) {
+    //  console.log('\t', err ? err : 'success');
+    //});
   }, 5000);
 });
 
