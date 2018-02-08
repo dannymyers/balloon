@@ -1,4 +1,6 @@
 var SX127x = require('sx127x');
+var LoraMessage = require("./loraMesssage");
+var Dal = require("./dal");
 
 var sx127x = new SX127x({
   frequency: 433E6,
@@ -18,8 +20,10 @@ sx127x.open(function(err) {
   }
 
   // add a event listener for data events
-  sx127x.on('data', function(data, rssi) {
-    console.log('data:', '\'' + data.toString() + '\'', rssi);
+  sx127x.on('data', function(buf, rssi, snr) {
+    var lm = new LoraMessage();
+    lm.fromBuffer(buf)
+    console.log(lm, rssi, snr);
   });
 
   // enable receive mode

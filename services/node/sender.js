@@ -9,7 +9,7 @@ var sx127x = new SX127x({
   frequency: 433E6,
   resetPin:	6,
   dio0Pin:	5,
-  spreadingFactor: 12
+  //spreadingFactor: 12
 });
 
 var count = 0;
@@ -95,16 +95,14 @@ sx127x.open(function(err) {
     }
 
     var buf = lm.toBuffer();
-    var z = new LoraMessage();
-    z.fromBuffer(buf);
-    //console.log(buf);
-    console.log(lm);
-    console.log(z);
-    //console.log('write: ' + buf.toString());
-    //sx127x.write(buf, function(err) {
-    //  console.log('\t', err ? err : 'success');
-    //});
-  }, 5000);
+    var lm2 = new LoraMessage();
+    lm2.fromBuffer(buf);
+    console.log('write:', buf);
+    console.log(lm2);
+    sx127x.write(buf, function(err) {
+      console.log('\t', err ? err : 'success');
+    });
+  }, 10000);
 });
 
 process.on('SIGINT', function() {
