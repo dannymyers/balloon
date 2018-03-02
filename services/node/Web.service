@@ -1,0 +1,12 @@
+[Unit]
+Description=Web
+After=multi-user.target
+
+[Service]
+WorkingDirectory=/share/balloon/services/node
+Type=simple
+ExecStart=/usr/bin/npm run web
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target

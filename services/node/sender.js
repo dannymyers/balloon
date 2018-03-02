@@ -102,7 +102,7 @@ sx127x.open(function(err) {
     sx127x.write(buf, function(err) {
       console.log('\t', err ? err : 'success');
     });
-  }, 10000);
+  }, 30000);
 });
 
 process.on('SIGINT', function() {
