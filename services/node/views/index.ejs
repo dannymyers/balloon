@@ -1,0 +1,144 @@
+<% layout('layout') -%>
+<div class="row">
+    <div class="col-lg-4">
+        <div class="well">
+            <div style="font-size: 15pt">Altimeter</div>
+
+            <div style="font-size: 30pt">{{Readings.AltitudeReading.TemperatureInFahrenheit.toFixed(2)}} F</div>
+            <div>
+                <div>High: <span style="font-weight:bold" class="dash-red">{{Readings.AltitudeReading.TemperatureInFahrenheit.toFixed(2)}} F</span></div>
+                <div>Low: <span  style="font-weight:bold" class="dash-blue">{{Readings.AltitudeReading.TemperatureInFahrenheit.toFixed(2)}} F</span></div>
+            </div>
+
+            <div style="font-size: 30pt">{{Readings.AltitudeReading.PressureInPascals.toFixed(2)}} mb/hPa</div>
+            <div>
+                <div>High: <span style="font-weight:bold" class="dash-red">{{Readings.AltitudeReading.PressureInPascals.toFixed(2)}} mb/hPa</span></div>
+                <div>Low: <span  style="font-weight:bold" class="dash-blue">{{Readings.AltitudeReading.PressureInPascals.toFixed(2)}} mb/hPa</span></div>
+            </div>
+
+            <div style="font-size: 30pt">{{Readings.AltitudeReading.AltitudeInFeet.toFixed(2)}} feet</div>
+            <div>
+                <div>High: <span style="font-weight:bold" class="dash-red">{{Readings.AltitudeReading.AltitudeInFeet.toFixed(2)}} feet</span></div>
+                <div>Low: <span  style="font-weight:bold" class="dash-blue">{{Readings.AltitudeReading.AltitudeInFee.toFixed(2)}} feet</span></div>
+            </div>
+            <div><a href="https://www.wunderground.com/weather/us/ca/coronado/92118" target="_blank">Coronado Pressure</a></div>
+            <div class="text-muted">{{Readings.AltitudeReading.ReadingTime | moment}}</div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="well">
+            <div style="font-size: 15pt">GPS Data</div>
+            <div style="font-size: 10pt">Fix Status: {{Readings.GpsReading.FixStatus == "1" ? "Locked" : "Not Locked"}}</div>
+            <div style="font-size: 10pt"><div style="width:100%;height:355px" id="map"></div></div>
+            <div style="font-size: 10pt">Altitude: {{Readings.GpsReading.MslAltitude * 3}} ft</div>
+            <div style="font-size: 10pt">Satellites Used: {{Readings.GpsReading.GnssSatellitesUsed}} of {{Readings.GpsReading.GnssSatellitesInView}}</div>
+            <div class="text-muted">{{Readings.GpsReading.ReadingTime | moment}}</div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="well">
+            <div style="font-size: 15pt">Camera Data</div>
+            <div>{{Readings.CameraReading.ImageName}}</div>
+            <img style="width:100%" v-bind:src="'/camera/' + Readings.CameraReading.ImageName + '.jpg'"/>
+            <div class="text-muted">{{Readings.CameraReading.ReadingTime | moment}}</div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-4">
+        <div class="well">
+            <div style="font-size: 15pt">Gyro Data</div>
+            <div style="font-size: 10pt">Gyro [X,Y,Z]: {{Readings.GyroReading.GyroX.toFixed(2)}} {{Readings.GyroReading.GyroY.toFixed(2)}} {{Readings.GyroReading.GyroZ.toFixed(2)}}</div>
+            <div style="font-size: 10pt">Accel [X,Y,Z]: {{Readings.GyroReading.AccelX.toFixed(2)}} {{Readings.GyroReading.AccelY.toFixed(2)}} {{Readings.GyroReading.AccelZ.toFixed(2)}}</div>
+            <div style="font-size: 10pt">Mag [X,Y,Z]: {{Readings.GyroReading.MagX.toFixed(2)}} {{Readings.GyroReading.MagY.toFixed(2)}} {{Readings.GyroReading.MagZ.toFixed(2)}}</div>
+            <div class="text-muted">{{Readings.GyroReading.TemperatureInFahrenheit.toFixed(2)}} F</div>
+            <div class="text-muted">{{Readings.GyroReading.ReadingTime | moment}}</div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="well">
+            <div style="font-size: 15pt">Cell/Battery Data</div>
+            <div style="font-size: 10pt">Network Status: {{Readings.CellNetworkReading.IsConnected == "1" ? "Connected" : "Not Connected"}}</div>
+            <div style="font-size: 10pt">Signal Stength: {{Readings.CellNetworkReading.SignalStrengthDecibals}} dBm</div>
+            <div style="font-size: 10pt">Battery: {{Readings.CellNetworkReading.BatteryPercentFull}} %</div>
+            <div style="font-size: 10pt">Battery: {{Readings.CellNetworkReading.VoltageMillivolts}} mV</div>
+            <div class="text-muted">{{Readings.CellNetworkReading.ReadingTime | moment}}</div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var mymap = L.map('map').setView([32.9628, -117.0359], 15);
+    L.tileLayer('/map/{z}/{x}/{y}.png', {
+        attribution: '',
+        minZoom: 3,
+        maxZoom: 15,
+        maxBounds: [
+            [34.184542, -117.141724],
+            [32.505129, -114.515991]
+        ],
+        bounds: [
+            [34.184542, -117.141724],
+            [32.505129, -114.515991]
+        ]
+    }).addTo(mymap);
+
+var myData = {    
+  Readings: {
+    AltitudeReading: { ReadingTime: '1/1/2010', TemperatureInFahrenheit: 10}
+  }
+}
+
+var marker = null;
+
+
+moment.updateLocale('en', {
+  relativeTime : {
+      future: "in %s",
+      past:   "%s ago",
+      s  : '%d seconds',
+      ss : '%d seconds',
+      m:  "%d minutes",
+      mm: "%d minutes",
+      h:  "%d hour(s)",
+      hh: "%d hour(s)",
+      d:  "a day",
+      dd: "%d days",
+      M:  "a month",
+      MM: "%d months",
+      y:  "a year",
+      yy: "%d years"
+  }
+});
+
+var vm = new Vue({
+  el: '#app',
+  data: myData,
+  filters: {
+    moment: function (date) {
+      if(date == null)
+        return "Never";
+      //      return moment(date).format('MMMM Do YYYY, h:mm:ss a');
+      return moment(date).fromNow();
+    }
+  },
+  created: function() {
+    getData = ()=> {
+      httpGetAsync("/data", (result)=>{
+        myData.Readings = JSON.parse(result);
+        if(marker != null)
+            mymap.removeLayer(marker);
+        var latlng = [myData.Readings.GpsReading.Latitude, myData.Readings.GpsReading.Longitude];
+        marker = L.marker(latlng)
+        marker.addTo(mymap).bindPopup("Latitude: " + myData.Readings.GpsReading.Latitude + "<br>Longitude: " + myData.Readings.GpsReading.Longitude);
+        mymap.setView(latlng, 15);
+      });
+    }
+    window.setInterval(()=>
+    {
+      getData();
+    }, 1000);
+    getData();
+  }
+});
+</script>

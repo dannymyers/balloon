@@ -1,0 +1,83 @@
+<% layout('layout') -%>
+<div id="map"></div>
+<script>
+
+    var mapmargin = 50;
+    $('#map').css("height", ($(window).height() - mapmargin));
+    $(window).on("resize", resize);
+    resize();
+    function resize(){
+        $('#map').css("height", ($(window).height() - (mapmargin+12)));    
+        $('#map').css("margin-top",-21);
+    }
+
+    var mymap = L.map('map').setView([32.9628, -117.0359], 13);
+    L.tileLayer('/map/{z}/{x}/{y}.png', {
+        attribution: '',
+        minZoom: 3,
+        maxZoom: 15,
+        maxBounds: [
+            [34.184542, -117.141724],
+            [32.505129, -114.515991]
+        ],
+        bounds: [
+            [34.184542, -117.141724],
+            [32.505129, -114.515991]
+        ]
+    }).addTo(mymap);
+    mymap.locate({setView: true, maxZoom: 13});
+    function onLocationFound(e) {
+        var radius = e.accuracy / 2;
+        L.marker(e.latlng).addTo(mymap).bindPopup("You are within " + radius + " meters from this point");
+        var circle = L.circle(e.latlng, {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            radius: 500
+            }).addTo(mymap);
+    }
+    mymap.on('locationfound', onLocationFound);
+
+    lastGpsReadingKey = null;
+
+    window.setInterval(()=>{
+      httpGetAsync("/mapData" + (lastGpsReadingKey == null ? "" : ("?id=" + lastGpsReadingKey)), (result)=>{
+        var newData = JSON.parse(result);
+        newData.forEach(a=>{
+            var latLong = L.latLng(a.Latitude, a.Longitude);
+            var tooltip = "";
+            tooltip += "<h1>" + a.Count + "</h1>"
+            tooltip += "Rssi: " + a.Rssi + "<br>"
+            tooltip += "Snr: " + a.Snr + "<br>"
+            tooltip += "Battery: " + a.BatteryPercentFull + "%<br>"
+            tooltip += "Altitude: " + a.CurrentAltitudeMeters + "m<br>"
+            tooltip += "External Temp: " + a.ExternalTemperatureInFahrenheit + "F<br>"
+            tooltip += "Internal Temp: " + a.InternalTemperatureInFahrenheit + "F<br>"
+            tooltip += "Altimeter Working?: " + a.IsAltitudeWorking + "<br>"
+            tooltip += "Camera Working?: " + a.IsCameraWorking + "<br>"
+            tooltip += "Cell Working?: " + a.IsCellWorking + "<br>"
+            tooltip += "Cell Connected?: " + a.IsConnected + "<br>"
+            tooltip += "External Temp Working?: " + a.IsExternalTempWorking + "<br>"
+            tooltip += "GPS Fixed?: " + a.IsGpsFixed + "<br>"
+            tooltip += "GPS Working?: " + a.IsGpsWorking + "<br>"
+            tooltip += "Gyro Working?: " + a.IsGyroWorking + "<br>"
+            tooltip += "Latitude: " + a.Latitude + "<br>"
+            tooltip += "Longitude: " + a.Longitude + "<br>"
+            tooltip += "Max Altitude: " + a.MaxAltitudeMeters + "m<br>"
+            tooltip += "Min Ext Temp: " + a.MinExternalTemperatureInFahrenheit + "F<br>"
+            tooltip += "MSL Altitude: " + a.MslCurrentAltitudeMeters + "m<br>"
+            tooltip += "Received Date: " + a.ReceivedDate + "<br>"
+            tooltip += "Speed: " + a.SpeedOverGroundInKilometersPerHour + "kph<br>"
+            tooltip += "Signal: " + a.StrengthInDecibel + "db<br>"
+            L.marker(latLong).addTo(mymap).bindPopup(tooltip);
+        }); 
+        if(newData.length > 0)
+        {
+            lastGpsReadingKey = newData[newData.length -1].GpsReadingKey;
+        }
+
+
+        });
+        
+    }, 5000);
+</script>

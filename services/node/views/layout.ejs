@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chase Server: <%= title %></title>
+    <script defer src="font-awesome.js"></script>
+    <link rel="stylesheet" href="bootstrap.min.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <style>
+        .text-danger {
+            color: red;
+        }
+        .text-info {
+            color: royalblue;
+        }
+        .text-success {
+            color: green;
+        }
+        .fa {
+            font-size: 20px !important;
+        }
+
+        html, body
+        {
+            height: 100%;
+        }
+        
+        </style>
+    <script src="/jquery-3.2.1.slim.min.js"></script>
+    <script src="/popper.min.js"></script>
+    <script src="/bootstrap.min.js"></script>
+    <script src="/vue.js"></script>
+    <script src="/moment.min.js"></script>
+    <link rel="stylesheet" href="/scripts/leaflet.css" />
+    <link rel="stylesheet" href="/css/highcharts.css" />
+    <script src="/scripts/leaflet.js"></script>
+    <script src="/shared.js"></script>
+</head>
+
+<body>
+
+<% include navigation.ejs%>
+
+<div class="container">
+    <div id="app">
+    <%- body %>
+    </div>
+</div>
+
+</body>
+<%- getScripts() %>
+</html>

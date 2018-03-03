@@ -10,6 +10,13 @@ class Dal {
     return arr[0];
   }
   
+  async getAllGpsReadingsAsync(sinceGpsReadingKey){
+      var query = "SELECT * FROM GpsReading xxx ORDER BY GpsReadingKey LIMIT 40";
+      query = query.replace("xxx", sinceGpsReadingKey == null ? "" : ("WHERE GpsReadingKey > " + sinceGpsReadingKey));
+      var data = await this.db.allAsync(query);
+      return data;
+  }
+
   async getLatestLaunchAsync(){
     var data = this.first(await this.db.allAsync("SELECT * FROM Launch ORDER BY LaunchKey DESC LIMIT 1"));
     return data;

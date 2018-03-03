@@ -1,0 +1,65 @@
+<% layout('layout') -%>
+
+<h1>Admin</h1>
+<style>
+  .w100 { width:100%}
+</style>
+<br>
+<button class="btn w100" onclick="deleteImages()"><i class="fa fa-camera"></i> Delete Images</button>
+<script>
+    deleteImages = () => {
+      if(confirm("Delete Images?")) {
+        httpGetAsync("/deleteimages", (result)=>{
+          alert(result);
+        });
+      }
+    }
+</script>
+<br>
+<br>
+<br>
+<button class="btn w100" onclick="emptyDatabase()"><i class="fa fa-database"></i> Empty Database</button>
+<script>
+    emptyDatabase = () => {
+      if(confirm("Empty Database?")) {
+        httpGetAsync("/emptydatabase", (result)=>{
+          alert(result);
+        });
+      }
+    }
+</script>
+<br>
+<br>
+<br>
+<button class="w100 btn" onclick="reboot()"><i class="fa fa-sync"></i> Reboot</button>
+<script>
+    reboot = () => {
+      if(confirm("Reboot?")) {
+        httpGetAsync("/reboot", (result)=>{
+          alert(result);
+        });
+      }
+    }
+</script>
+<br>
+<br>
+<br>
+<button class="w100 btn" onclick="shutdown()"><i class="fa fa-power-off"></i> Shutdown</button>
+<script>
+    shutdown = () => {
+      if(confirm("Shutdown?")) {
+      httpGetAsync("/shutdown", (result)=>{
+        alert(result);
+      });
+    }
+    }
+</script>
+<br>
+<br>
+<br>
+<button class="w100 btn" onclick="download()"><i class="fa fa-download"></i> Download Database</button>
+<script>
+    download = () => {
+      window.open("/balloon.db");
+    }
+</script>
